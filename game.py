@@ -25,7 +25,8 @@ GRAVITY = 0.5
 level = [
     #                         111111111111111  
     #   1122233444556667788899000112223344455
-    #0482604826048260482604826048260482604826
+    # 482604826048260482604826048260482604826
+    #0000000000000000000000000000000000000000
     '                                        ',
     '                                        ',
     '                                        ',
@@ -43,13 +44,12 @@ level = [
     '                                        ',
     '                                        ',
     '                   [F]                  ',
-    '[x]     [x]    [x]    [x]    [x]     [x]',
-    '[xxxxxxxxxxxxxxxxxxPxxxxxxxxxxxxxxxxxxx]',
+    '[=]     [=]    [=]    [=]    [=]     [=]',
+    '[==================P===================]',
 ]
 
 platforms = []
 player = None
-finish = None
 
 step_x = PLATFORM_WIDTH_STEP
 step_y = 80  # Расстояние между строками
@@ -149,7 +149,7 @@ class Camera:
 def generate_level():
     platforms_list = []
     player_obj = None
-    finish_platform = None
+    is_finish = False
     
     y = 0
     for line in level:
@@ -160,30 +160,28 @@ def generate_level():
         for char in line:
             if platform_size > 0: 
                 platform_size += 1
-                
+            
+            
+
             if char == '[':
                 platform_x = x
                 platform_size = 1
             elif char == ']':
                 if platform_size > 0:
-                    platform = Platform(platform_x, y, platform_size)
+                    platform = Platform(platform_x, y, platform_size, is_finish)
                     platforms_list.append(platform)
                     platform_size = 0
+                    is_finish = False
             elif char == 'P':
                 # Создаем игрока в этой позиции
                 player_obj = Player(x, y - PLAYER_SIZE)
-            elif char == 'F':
-                # Создаем финишную платформу
-                if platform_size > 0:
-                    finish_platform = Platform(platform_x, y, platform_size, is_finish=True)
-                    platforms_list.append(finish_platform)
-                    platform_size = 0
+            elif char == 'F' : is_finish = True
             
             x += step_x
         
         y += step_y
     
-    return platforms_list, player_obj, finish_platform
+    return platforms_list, player_obj
 
 def show_win_message():
     font = PG.font.Font(None, 74)
@@ -192,7 +190,7 @@ def show_win_message():
     SCREEN.blit(text, text_rect)
 
 # Инициализация
-platforms, player, finish = generate_level()
+platforms, player = generate_level()
 camera = Camera()
 
 if player is None:
